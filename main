@@ -1,0 +1,99 @@
+import java.util.*;
+import java.util.stream.IntStream;
+
+public class main {
+
+    public static void main(String[] args) {
+
+        int[][] matriz = {
+                // A  B  C  D  E  F  G
+                {0, 5, 7, 1, 0, 0, 0}, // A = 0
+                {5, 0, 2, 3, 0, 0, 0}, // B = 1
+                {7, 2, 0, 6, 5, 1, 0}, // C = 2
+                {1, 3, 6, 0, 0, 5, 3}, // D = 3
+                {0, 0, 5, 0, 0, 4, 1}, // E = 4
+                {0, 0, 1, 5, 4, 0, 0}, // F = 5
+                {0, 0, 0, 3, 1, 0, 0}  // G = 6
+        };
+
+        int[][] matriz2 = {
+                //A  B  C  D  E  F  G  H  I  J  K  L  M  N
+                {0, 0, 0, 0, 5, 1, 0, 0, 0, 0, 0, 2, 0, 0},   // A = 0
+                {0, 0, 11, 0, 1, 0, 0, 0, 9, 0, 0, 0, 0, 0},  // B = 1
+                {0, 11, 0, 3, 0, 3, 5, 0, 0, 6, 0, 0, 0, 0},  // C = 2
+                {0, 0, 3, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 5},   // D = 3
+                {5, 1, 0, 0, 0, 0, 0, 8, 0, 0, 0, 0, 0, 0},   // E = 4
+                {1, 0, 3, 0, 0, 0, 1, 0, 6, 0, 0, 0, 4, 0},   // F = 5
+                {0, 0, 5, 4, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0},   // G = 6
+                {0, 0, 0, 0, 8, 0, 0, 0, 10, 0, 0, 0 ,7 , 0}, // H = 7
+                {0, 9, 0, 0, 0, 6, 0, 10, 0, 0, 0, 0, 0, 0},  // I = 8
+                {0, 0, 6, 0, 0, 0, 0, 0, 0, 0, 13, 8, 0, 0},  // J = 9
+                {0, 0, 0, 0, 0, 0, 0, 0, 0, 13, 0, 0, 9, 6},  // K = 10
+                {2, 0, 0, 0, 0, 0, 0, 0, 0, 8, 0, 0, 0, 0},   // L = 11
+                {0, 0, 0, 0, 0, 4, 0, 7, 0, 0, 9, 0, 0, 0},   // M = 12
+                {0, 0, 0, 5, 0, 0, 0, 0, 0, 0, 6, 0, 0, 0}    // N = 13
+        };
+
+        dijsktra(matriz, 1);
+
+    }
+
+    static void dijsktra(int[][] matriz, int raiz) {
+
+        int[] custos = new int[matriz.length];
+        boolean[] N = new boolean[matriz.length];
+        ArrayList<Integer>[] caminho = new ArrayList[matriz.length];
+        N[raiz] = true;
+
+        for (int v = 0; v < matriz.length; v++) {
+            caminho[v] = new ArrayList<Integer>();
+            caminho[v].add(raiz);
+            if (matriz[v][raiz] != 0) {
+                caminho[v].add(v);
+                custos[v] = matriz[v][raiz];
+            } else {
+                custos[v] = Integer.MAX_VALUE;
+            }
+        }
+
+        do {
+
+            int w = menorVertice(custos, N);
+            N[w] = true;
+            for (int v = 0; v < matriz.length; v++) {
+                if (matriz[v][w] != 0 && !N[v]) {
+                    if (custos[v] > custos[w] + matriz[w][v]) {
+                        ArrayList<Integer> caminhoFilho = new ArrayList<>();
+                        for (int vertice : caminho[w]) {
+                            caminhoFilho.add(vertice);
+                        }
+                        caminhoFilho.add(v);
+                        caminho[v] = caminhoFilho;
+                        custos[v] = custos[w] + matriz[w][v];
+                    }
+                }
+            }
+
+
+        } while (!IntStream.range(0, N.length).allMatch(i -> N[i]));
+        custos[raiz] = 0;
+        for (int i = 0; i <= matriz.length-1; i++) {
+            System.out.println("Caminho " + "V" + i + ": " + caminho[i].toString());
+            System.out.println("Custo " + "V" + i + ": " + custos[i]);
+            System.out.println("--------------------------");
+        }
+    }
+
+    public static int menorVertice(int[] custos, boolean[] visitados) {
+        HashMap<Integer,Integer> custosNaoVisitados = new HashMap<>();
+
+        for (int i = 0; i < custos.length; i++) {
+            if (!visitados[i]) {
+                custosNaoVisitados.put(i, custos[i]);
+            }
+        }
+
+        return Collections.min(custosNaoVisitados.entrySet(), Map.Entry.comparingByValue()).getKey();
+    }
+
+}
